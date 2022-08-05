@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include '_header.html' %}
+</head>
+
+<body>
+    {% include '_navbar.html' %}
+    {% include '_error.html' %}
+    <div class="all">
+        <div class="start">
+            <h1>Add new games</h1>
+            {% from "_formhelpers.html" import render_field %}
+            <form method=post action="/game" id="submit-form">
+                {{ render_field(form.gametitle) }}
+                {{ render_field(form.date) }}
+                {{ render_field(form.genrechoice) }}
+                {{ render_field(form.submit) }}
+            </form>
+            {% with messages = get_flashed_messages() %}
+            {% if error_add_game in messages %}
+            <div class=flashes>
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+        </div>
+        <div class="end">
+            <h1>{% block title %} All games {% endblock %}</h1>
+            {% with messages = get_flashed_messages() %}
+            {% if error_delete_game in messages %}
+            <div class=flashes>
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Release Date</th>
+                        <th>Genre</th>
+                        <th>Delete Game</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for g in gamelist %}
+                    <tr>
+                        <td>{{ g[1] }}</td>
+                        <td>{{ g[2] }}</td>
+                        <td>{{ g[3] }}</td>
+                        <td>
+                            <form action="{{ url_for('delete_game', GameId=g.0) }}" method=post>
+                                {{ render_field(form2.submit) }}
+                            </form>
+                        </td>
+                        {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

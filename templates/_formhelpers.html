@@ -1,0 +1,13 @@
+{% macro render_field(field) %}
+  {% if field.type == 'SubmitField' %}
+  {{ field.label }}
+    {{ field(class_="form_button")|safe }}<br>
+  {% elif field.type == 'StringField' %}
+    {{ field.label }}
+    {{ field(class_="form-all form_others form_text")|safe }}<br>
+  {% else %}
+    {{ field.label }}
+    {{ field(class_="form-all form_others")|safe }}<br>
+  {% endif %}
+  </dd>
+{% endmacro %}

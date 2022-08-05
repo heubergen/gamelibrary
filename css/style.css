@@ -1,0 +1,223 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.15;
+}
+
+h1 {
+    color: #426571;
+}
+
+div.start, div.end {
+    display: table-cell;
+}
+div.all {
+    display: table;
+    table-layout: fixed; /*euqal column width*/
+    width: 100%;
+  }
+
+nav {
+    overflow: hidden;
+    background-color: #5db9c1;
+}
+
+nav a {
+    float: left;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+}
+
+nav a:hover {
+    background-color: #46637f;
+    color: white;
+}
+
+nav a.active {
+    background-color: #46637f;
+    color: white;
+}
+
+table {
+    border-radius: .4em;
+    margin: 0;
+    padding: 0;
+    min-width: 300px;
+    table-layout: fixed;
+    border-spacing: 0;
+}
+
+table caption {
+    font-size: 1.5em;
+    margin: .5em 0 .75em;
+}
+
+thead tr:first-child th:first-child {
+    border-radius: 5px 0 0 0;
+}
+
+thead tr:first-child th:last-child {
+    border-radius: 0 5px 0 0;
+}
+
+tbody tr:last-child td:first-child {
+    border-radius: 0 0 0 5px;
+}
+
+tbody tr:last-child td:last-child {
+    border-radius: 0 0 5px 0;
+}
+
+table tr {
+    background-color: #46637f;
+    padding: .35em;
+}
+
+table td {
+    color: white;
+}
+
+table th,
+table td {
+    padding: 0.625em;
+    text-align: center;
+}
+
+table th {
+    font-size: .85em;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #dddd55;
+}
+
+input.form_button {
+    background: none;
+    border: 2px solid;
+    padding: 8px;
+    color: #5db9c1;
+    -webkit-appearance: button;
+    text-transform: none;
+    overflow: visible;
+    width: 65%;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+form#submit-form {
+    display: grid;
+    gap: 0.5em;
+    grid-template-columns: 4fr 10em 4fr;
+    width: 80%;
+}
+
+label:last-of-type {
+    font-size: 0;
+}
+
+input#submit {
+    margin: 1em;
+}
+
+form.long-button input.form_button {
+    width: 100%;
+}
+
+div.flashes, div.errors {
+    color: #ba3939;
+    background: #ffe0e0;
+    border: 1px solid #a33a3a;
+    padding: 10px;
+    margin: 10px;
+    display: inline-block;
+}
+
+div.errors p {
+    margin: 0;
+}
+
+@media screen and (max-width: 600px) {
+    table {
+        border: 0;
+    }
+
+    table caption {
+        font-size: 1.3em;
+    }
+
+    table thead {
+        border: none;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+    }
+
+    table tr {
+        display: block;
+        margin-bottom: .625em;
+    }
+
+    table td {
+        display: block;
+        font-size: .8em;
+        text-align: right;
+    }
+
+    table td::before {
+        float: left;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #dddd55;
+    }
+
+    table td:last-child {
+        border-bottom: 0;
+    }
+
+    tbody tr {
+        border-radius: 5px;
+    }
+
+    input.form_button {
+        width: 35%;
+    }
+
+    td:nth-of-type(1):before {
+        content: "Titel";
+    }
+
+    td:nth-of-type(2):before {
+        content: "Release Date";
+    }
+
+    td:nth-of-type(3):before {
+        content: "Genre";
+    }
+
+    td:nth-of-type(4):before {
+        content: "Delete Game";
+    }
+}
+
+@media screen and (min-width: 600px) {
+
+    table th,
+    table td {
+        padding: 1em;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+table {
+    margin-left: auto;
+    margin-right: auto;
+}
+div.start, div.end {
+    display: block;
+  }
+}

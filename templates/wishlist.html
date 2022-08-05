@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include '_header.html' %}
+</head>
+
+<body>
+    {% include '_navbar.html' %}
+    {% include '_error.html' %}
+    <div class="all">
+        <div class="start">
+            <h1>Add game to wishlist</h1>
+            {% from "_formhelpers.html" import render_field %}
+            <form method=post action="/wishlist" id="submit-form" class="long-button">
+                {{ render_field(form.gametitle) }}
+                {{ render_field(form.submit) }}
+            </form>
+            {% with messages = get_flashed_messages() %}
+            {% if error_add_to_wishlist in messages %}
+            <div class=flashes>
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+        </div>
+        <div class="end">
+            <h1>{% block title %} All games in the wishlist {% endblock %}</h1>
+            <table>
+                <tr>
+                    <th>Game</th>
+                    <th>Delete Game</th>
+                </tr>
+                {% for w in wishlist %}
+                <tr>
+                    <td>{{ w[1] }}</td>
+                    <td>
+                        <form action="{{ url_for('remove_wishlist', GameId=w.0) }}" method=post>
+                            {{ render_field(form2.submit) }}
+                        </form>
+                        {% with messages = get_flashed_messages() %}
+                        {% if error_delete_from_wishlist in messages %}
+                        <div class=flashes>
+                            {% for message in messages %}
+                            {{ message }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                    </td>
+                    {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

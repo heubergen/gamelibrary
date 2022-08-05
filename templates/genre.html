@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include '_header.html' %}
+</head>
+
+<body>
+    {% include '_navbar.html' %}
+    {% include '_error.html' %}
+    <div class="all">
+        <div class="start">
+            <h1>Add new genre</h1>
+            {% from "_formhelpers.html" import render_field %}
+            <form method=post action="/genre" id="submit-form">
+                {{ render_field(form.genretitle) }}
+                {{ render_field(form.submit) }}
+            </form>
+            {% with messages = get_flashed_messages() %}
+            {% if error_add_genre in messages %}
+            <div class=flashes>
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+        </div>
+        <div class="end">
+            <h1>{% block title %} All genres {% endblock %}</h1>
+            {% with messages = get_flashed_messages() %}
+            {{ messages|pprint }}
+            {% if error_delete_genre in messages %}
+            <div class=flashes>
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+            <table>
+                <tr>
+                    <th>Title</th>
+                    <th>Delete Game</th>
+                </tr>
+                {% for g in genrelist %}
+                <tr>
+                    <td>{{ g[1] }}</td>
+                    <td>
+                        <form action="{{ url_for('delete_genre', GenreId=g.0) }}" method=post>
+                            {{ render_field(form2.submit) }}
+                        </form>
+                    </td>
+                    {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

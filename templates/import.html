@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include '_header.html' %}
+</head>
+
+<body>
+    {% include '_navbar.html' %}
+    {% include '_error.html' %}
+    <div class="all">
+        <div class="start">
+            <h1>Import genres</h1>
+            <p>
+                The Game import requires you to provide the genreId (not the Name) which you can find out in the
+                database in the
+                Genre table. </p>
+            <p> So it's recommended to import the genres first and then the games. </p>
+            <p>Make sure you have a file called genres.csv or games.csv in the same directory as the import_csv.py file.
+                The import will append any data that is already in the database (if the genre/game doesn't exist yet),
+                it will
+                not overwrite anything.
+            </p>
+            {% from "_formhelpers.html" import render_field %}
+            <form method=post id="submit-form">
+                {{ render_field(form.type) }}
+                {{ render_field(form.submit) }}
+            </form>
+            {% with messages = get_flashed_messages() %}
+            {% if (error_bad_case or error_transfer_temp_to_final) in messages %}
+            <div class=flashes>
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+</body>
+
+</html>

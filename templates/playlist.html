@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include '_header.html' %}
+</head>
+
+<body>
+    {% include '_navbar.html' %}
+    {% include '_error.html' %}
+    <div class="all">
+        <div class="start">
+            <h1>Add game to playlist</h1>
+            {% from "_formhelpers.html" import render_field %}
+            <form method=post action="/playlist" id="submit-form" class="long-button">
+                {{ render_field(form.gametitle) }}
+                {{ render_field(form.playtime) }}
+                {{ render_field(form.date) }}
+                {{ render_field(form.rating) }}
+                {{ render_field(form.submit) }}
+            </form>
+            {% with messages = get_flashed_messages() %}
+            {% if error_add_to_playlist in messages %}
+            <div class=flashes>
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+        </div>
+        <div class="end">
+            <h1>{% block title %} All games in the playlist {% endblock %}</h1>
+            <table>
+                <tr>
+                    <th>Game</th>
+                    <th>Playtime</th>
+                    <th>Purchase Date</th>
+                    <th>Rating</th>
+                    <th>Delete Game</th>
+                </tr>
+                {% for p in playlist %}
+                <tr>
+                    <td>{{ p[0] }}</td>
+                    <td>{{ p[1] }}</td>
+                    <td>{{ p[2] }}</td>
+                    <td>{{ p[3] }}</td>
+                    <td>
+                        <form action="{{ url_for('remove_playlist', PlaylistId=p.0) }}" method=post>
+                            {{ render_field(form2.submit) }}
+                        </form>
+                        {% with messages = get_flashed_messages() %}
+                        {% if error_delete_from_playlist in messages %}
+                        <div class=flashes>
+                            {% for message in messages %}
+                            {{ message }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                    </td>
+                    {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>
