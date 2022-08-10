@@ -12,7 +12,8 @@ csrf = CSRFProtect(app)
 #TODO Expand playlist table
 
 def create_tables():
-    db.create_tables([Genre, Game, WishList, PlayList])
+    with db.connection_context():
+        db.create_tables([Genre, Game, WishList, PlayList])
 
 
 create_tables()
@@ -266,4 +267,3 @@ def process_import():
         error_transfer_temp_to_final=error_transfer_temp_to_final,
         error_bad_case=error_bad_case,
         root_import=root_import)
-    
