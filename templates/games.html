@@ -16,6 +16,7 @@
                 {{ render_field(form.gametitle) }}
                 {{ render_field(form.date) }}
                 {{ render_field(form.genrechoice) }}
+                {{ form.csrf_token }}
                 {{ render_field(form.submit) }}
             </form>
             {% with messages = get_flashed_messages() %}
@@ -56,6 +57,7 @@
                         <td>{{ g[3] }}</td>
                         <td>
                             <form action="{{ url_for('delete_game', GameId=g.0) }}" method=post>
+                                {{ form2.csrf_token }}
                                 {{ render_field(form2.submit) }}
                             </form>
                         </td>

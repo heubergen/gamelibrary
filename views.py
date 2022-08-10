@@ -1,13 +1,16 @@
-from flask import flash, render_template, request, redirect
+from flask import flash, render_template, request, redirect, url_for
 from app import app, db
 from models import *
 from forms import *
 from error_msg import *
 from import_csv import import_csv
 
+from flask_wtf.csrf import CSRFProtect
 
-#TODO Use venv
-#TODO Use flask_wtf
+csrf = CSRFProtect(app)
+
+#TODO Expand playlist table
+
 def create_tables():
     db.create_tables([Genre, Game, WishList, PlayList])
 
@@ -31,7 +34,7 @@ data_games_to_playlist_query = (
     "SELECT GameId, GameTitle FROM game WHERE GameId NOT IN (SELECT GameId_id FROM playlist);"
 )
 
-
+# TODO Loop this!
 def update_gamelist():
     global data_gameslist
     cursor = db.execute_sql(data_gameslist_query)
@@ -87,19 +90,17 @@ def add_game():
     update_gamelist()
     pagetitle = "Game List"
 
-    form = AddGamesForm(request.form)
+    form = AddGamesForm()
     form.genrechoice.choices = [("0", "")] + [(g[0], g[1])
                                               for g in data_genrelist]
-    form2 = RemoveGameButton(request.form)
-    if request.method == 'POST':
-        try:
-            with db.atomic():
-                Game.create(GameTitle=form.gametitle.data,
-                            ReleaseDate=form.date.data,
-                            GenreId_id=form.genrechoice.data)
-            update_gamelist()
-        except:
-            flash(error_add_game)
+    form2 = RemoveGameButton()
+    if form.validate_on_submit():
+        with db.atomic():
+            Game.create(GameTitle=form.gametitle.data,
+                        ReleaseDate=form.date.data,
+                        GenreId_id=form.genrechoice.data)
+        update_gamelist()
+        return redirect(url_for('add_game'))
     return render_template('games.html',
                            form=form,
                            form2=form2,
@@ -113,7 +114,8 @@ def add_game():
 
 @app.route('/game/delete/<int:GameId>', methods=['POST'])
 def delete_game(GameId):
-    if request.method == 'POST':
+    form2 = RemoveGameButton()
+    if form2.validate_on_submit():
         try:
             game = Game.get(Game.GameId == GameId)
             game.delete_instance()
@@ -127,13 +129,14 @@ def delete_game(GameId):
 def add_genre():
     update_genrelist()
     pagetitle = "Genre List"
-    form = AddGenreForm(request.form)
-    form2 = RemoveGenreButton(request.form)
-    if request.method == 'POST' and form.validate():
+    form = AddGenreForm()
+    form2 = RemoveGenreButton()
+    if form.validate_on_submit():
         try:
             with db.atomic():
                 Genre.create(GenreName=request.form['genretitle'])
             update_genrelist()
+            return redirect(url_for('add_genre'))
         except:
             flash(error_add_genre)
     return render_template('genre.html',
@@ -149,7 +152,8 @@ def add_genre():
 @app.route('/genre/delete/<int:GenreId>', methods=['POST'])
 def delete_genre(GenreId):
     update_genrelist()
-    if request.method == 'POST':
+    form2 = RemoveGenreButton()
+    if form2.validate_on_submit():
         try:
             genre = Genre.get(Genre.GenreId == GenreId)
             genre.delete_instance()
@@ -164,15 +168,16 @@ def add_wishlist():
     update_wishlist()
     update_games_wishlist()
     pagetitle = "Genre List"
-    form = AddGameToWishlistForm(request.form)
+    form = AddGameToWishlistForm()
     form.gametitle.choices = [("0", "")] + [(gw[0], gw[1])
                                             for gw in data_games_to_wishlist]
-    form2 = RemoveWishListButton(request.form)
-    if request.method == 'POST' and form.validate():
+    form2 = RemoveWishListButton()
+    if form.validate_on_submit():
         try:
             with db.atomic():
                 WishList.create(GameId=request.form['gametitle'])
             update_wishlist()
+            return redirect(url_for('add_wishlist'))
         except:
             flash(error_add_to_wishlist)
     return render_template(
@@ -188,7 +193,8 @@ def add_wishlist():
 
 @app.route('/wishlist/remove/<int:GameId>', methods=['POST'])
 def remove_wishlist(GameId):
-    if request.method == 'POST':
+    form2 = RemoveWishListButton()
+    if form2.validate_on_submit():
         try:
             genre = WishList.get(WishList.GameId == GameId)
             genre.delete_instance()
@@ -203,11 +209,11 @@ def add_playlist():
     update_playlist()
     update_games_playlist()
     pagetitle = "Play List"
-    form = AddGameToPlayListForm(request.form)
+    form = AddGameToPlayListForm()
     form.gametitle.choices = [("0", "")] + [(gp[0], gp[1])
                                             for gp in data_games_to_playlist]
-    form2 = RemovePlayListButton(request.form)
-    if request.method == 'POST' and form.validate():
+    form2 = RemovePlayListButton()
+    if form.validate_on_submit():
         try:
             with db.atomic():
                 PlayList.create(GameId=form.gametitle.data,
@@ -216,6 +222,7 @@ def add_playlist():
                                 Rating=form.rating.data)
             update_playlist()
             update_games_playlist()
+            return redirect(url_for('add_playlist'))
         except:
             flash(error_add_to_playlist)
     return render_template(
@@ -231,7 +238,8 @@ def add_playlist():
 
 @app.route('/playlist/remove/<int:PlaylistId>', methods=['POST'])
 def remove_playlist(PlaylistId):
-    if request.method == 'POST':
+    form2 = RemovePlayListButton()
+    if form2.validate_on_submit():
         try:
             genre = PlayList.get(PlayList.PlaylistId == PlaylistId)
             genre.delete_instance()
@@ -245,10 +253,12 @@ def remove_playlist(PlaylistId):
 @app.route(root_import, methods=['GET', 'POST'])
 def process_import():
     pagetitle = "Import"
-    form = ImportGenreForm(request.form)
-    if request.method == 'POST' and form.validate():
+    form = ImportDataForm()
+    if form.validate_on_submit():
+        upload_file = form.csv_file.data
         import_csv_type = form.type.data
-        import_csv(import_csv_type)
+        import_csv(import_csv_type, upload_file)
+        return redirect(url_for('process_import'))
     return render_template(
         'import.html',
         pagetitle=pagetitle,
@@ -256,3 +266,4 @@ def process_import():
         error_transfer_temp_to_final=error_transfer_temp_to_final,
         error_bad_case=error_bad_case,
         root_import=root_import)
+    

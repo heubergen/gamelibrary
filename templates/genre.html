@@ -14,6 +14,7 @@
             {% from "_formhelpers.html" import render_field %}
             <form method=post action="/genre" id="submit-form">
                 {{ render_field(form.genretitle) }}
+                {{ form.csrf_token }}
                 {{ render_field(form.submit) }}
             </form>
             {% with messages = get_flashed_messages() %}
@@ -29,7 +30,6 @@
         <div class="end">
             <h1>{% block title %} All genres {% endblock %}</h1>
             {% with messages = get_flashed_messages() %}
-            {{ messages|pprint }}
             {% if error_delete_genre in messages %}
             <div class=flashes>
                 {% for message in messages %}
@@ -48,6 +48,7 @@
                     <td>{{ g[1] }}</td>
                     <td>
                         <form action="{{ url_for('delete_genre', GenreId=g.0) }}" method=post>
+                            {{ form2.csrf_token }}
                             {{ render_field(form2.submit) }}
                         </form>
                     </td>

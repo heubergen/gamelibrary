@@ -1,21 +1,22 @@
-from sqlite3 import connect
+import warnings
 from flask import flash
 from pandas import read_csv
+
 
 from app import db
 from error_msg import error_bad_case, error_transfer_temp_to_final
 from models import Game, Genre, Temp_Game, Temp_Genre
 
-def import_csv(import_csv_type):
+def import_csv(import_csv_type, upload_file):
     try:
         match import_csv_type:
             case "ch_genre":
                 db.create_tables([Temp_Genre])
 
-                conn = connect('games.db')
-                csvfile = read_csv("genres.csv")
-                csvfile.to_sql(name='temp_genre', con=conn, if_exists='append', index=False)
-                conn.close()
+                # We use peewee instead of SQLAlchemy to import the csv
+                warnings.filterwarnings("ignore", message="pandas only support SQLAlchemy", category=UserWarning)
+                csvfile = read_csv(upload_file)
+                csvfile.to_sql(name='temp_genre', con=db, if_exists='append', index=False)
 
                 Genre.insert_from(Temp_Genre.select(Temp_Genre.GenreName),
                                 fields=[Genre.GenreName
@@ -23,10 +24,12 @@ def import_csv(import_csv_type):
                 db.drop_tables(Temp_Genre)
             case "ch_game":
                 db.create_tables([Temp_Game])
-                conn = connect('games.db')
-                csvfile = read_csv("games.csv")
-                csvfile.to_sql(name='temp_game', con=conn, if_exists='append', index=False)
-                conn.close()
+
+                # We use peewee instead of SQLAlchemy to import the csv
+                warnings.filterwarnings("ignore", message="pandas only support SQLAlchemy", category=UserWarning)
+                csvfile = read_csv(upload_file)
+                csvfile.to_sql(name='temp_game', con=db, if_exists='append', index=False)
+
                 Game.insert_from(Temp_Game.select(Temp_Game.GameTitle, Temp_Game.ReleaseDate, Temp_Game.GenreId),
                                 fields=[Game.GameTitle, Game.ReleaseDate, Temp_Game.GenreId
                                         ]).on_conflict(action='IGNORE').execute()

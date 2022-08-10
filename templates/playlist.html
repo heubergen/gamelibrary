@@ -16,6 +16,7 @@
                 {{ render_field(form.gametitle) }}
                 {{ render_field(form.playtime) }}
                 {{ render_field(form.date) }}
+                {{ form.csrf_token }}
                 {{ render_field(form.rating) }}
                 {{ render_field(form.submit) }}
             </form>
@@ -47,6 +48,7 @@
                     <td>{{ p[3] }}</td>
                     <td>
                         <form action="{{ url_for('remove_playlist', PlaylistId=p.0) }}" method=post>
+                            {{ form2.csrf_token }}
                             {{ render_field(form2.submit) }}
                         </form>
                         {% with messages = get_flashed_messages() %}
