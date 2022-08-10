@@ -35,41 +35,11 @@ data_games_to_playlist_query = (
     "SELECT GameId, GameTitle FROM game WHERE GameId NOT IN (SELECT GameId_id FROM playlist);"
 )
 
-# TODO Loop this!
-def update_gamelist():
-    global data_gameslist
-    cursor = db.execute_sql(data_gameslist_query)
+
+def update_lists(tmp_sql_query):
+    cursor = db.execute_sql(tmp_sql_query)
     data_gameslist = cursor.fetchall()
-
-
-def update_genrelist():
-    global data_genrelist
-    cursor = db.execute_sql(data_genrelist_query)
-    data_genrelist = cursor.fetchall()
-
-
-def update_wishlist():
-    global data_wishlist
-    cursor = db.execute_sql(data_wishlist_query)
-    data_wishlist = cursor.fetchall()
-
-
-def update_games_wishlist():
-    global data_games_to_wishlist
-    cursor = db.execute_sql(data_games_to_wishlist_query)
-    data_games_to_wishlist = cursor.fetchall()
-
-
-def update_games_playlist():
-    global data_games_to_playlist
-    cursor = db.execute_sql(data_games_to_playlist_query)
-    data_games_to_playlist = cursor.fetchall()
-
-
-def update_playlist():
-    global data_playlist
-    cursor = db.execute_sql(data_playlist_query)
-    data_playlist = cursor.fetchall()
+    return data_gameslist
 
 
 root_game = "/game"
@@ -77,7 +47,6 @@ root_genre = "/genre"
 root_wishlist = "/wishlist"
 root_playlist = "/playlist"
 root_import = "/import"
-#TODO use them in the template too
 
 
 @app.route('/', methods=['GET'])
@@ -87,8 +56,8 @@ def index():
 
 @app.route(root_game, methods=['GET', 'POST'])
 def add_game():
-    update_genrelist()
-    update_gamelist()
+    data_genrelist = update_lists(data_genrelist_query)
+    data_gameslist = update_lists(data_gameslist_query)
     pagetitle = "Game List"
 
     form = AddGamesForm()
@@ -96,11 +65,13 @@ def add_game():
                                               for g in data_genrelist]
     form2 = RemoveGameButton()
     if form.validate_on_submit():
-        with db.atomic():
-            Game.create(GameTitle=form.gametitle.data,
-                        ReleaseDate=form.date.data,
-                        GenreId_id=form.genrechoice.data)
-        update_gamelist()
+        try:
+            with db.atomic():
+                Game.create(GameTitle=form.gametitle.data,
+                            ReleaseDate=form.date.data,
+                            GenreId_id=form.genrechoice.data)
+            update_lists(data_gameslist_query)
+        except: flash(error_add_game)
         return redirect(url_for('add_game'))
     return render_template('games.html',
                            form=form,
@@ -120,7 +91,7 @@ def delete_game(GameId):
         try:
             game = Game.get(Game.GameId == GameId)
             game.delete_instance()
-            update_gamelist()
+            update_lists(data_gameslist_query)
         except:
             flash(error_delete_game)
     return redirect(request.referrer)
@@ -128,7 +99,7 @@ def delete_game(GameId):
 
 @app.route(root_genre, methods=['GET', 'POST'])
 def add_genre():
-    update_genrelist()
+    data_genrelist = update_lists(data_genrelist_query)
     pagetitle = "Genre List"
     form = AddGenreForm()
     form2 = RemoveGenreButton()
@@ -136,7 +107,7 @@ def add_genre():
         try:
             with db.atomic():
                 Genre.create(GenreName=request.form['genretitle'])
-            update_genrelist()
+            update_lists(data_genrelist_query)
             return redirect(url_for('add_genre'))
         except:
             flash(error_add_genre)
@@ -152,13 +123,13 @@ def add_genre():
 
 @app.route('/genre/delete/<int:GenreId>', methods=['POST'])
 def delete_genre(GenreId):
-    update_genrelist()
+    update_lists(data_genrelist_query)
     form2 = RemoveGenreButton()
     if form2.validate_on_submit():
         try:
             genre = Genre.get(Genre.GenreId == GenreId)
             genre.delete_instance()
-            update_genrelist()
+            update_lists(data_genrelist_query)
         except:
             flash(error_delete_genre)
     return redirect(request.referrer)
@@ -166,8 +137,8 @@ def delete_genre(GenreId):
 
 @app.route(root_wishlist, methods=['GET', 'POST'])
 def add_wishlist():
-    update_wishlist()
-    update_games_wishlist()
+    data_wishlist = update_lists(data_wishlist_query)
+    data_games_to_wishlist = update_lists(data_games_to_wishlist_query)
     pagetitle = "Genre List"
     form = AddGameToWishlistForm()
     form.gametitle.choices = [("0", "")] + [(gw[0], gw[1])
@@ -177,7 +148,7 @@ def add_wishlist():
         try:
             with db.atomic():
                 WishList.create(GameId=request.form['gametitle'])
-            update_wishlist()
+            update_lists(data_wishlist_query)
             return redirect(url_for('add_wishlist'))
         except:
             flash(error_add_to_wishlist)
@@ -199,7 +170,7 @@ def remove_wishlist(GameId):
         try:
             genre = WishList.get(WishList.GameId == GameId)
             genre.delete_instance()
-            update_games_wishlist()
+            update_lists(data_games_to_wishlist_query)
         except:
             flash(error_delete_genre)
     return redirect(request.referrer)
@@ -207,8 +178,8 @@ def remove_wishlist(GameId):
 
 @app.route(root_playlist, methods=['GET', 'POST'])
 def add_playlist():
-    update_playlist()
-    update_games_playlist()
+    data_playlist = update_lists(data_playlist_query)
+    data_games_to_playlist = update_lists(data_games_to_playlist_query)
     pagetitle = "Play List"
     form = AddGameToPlayListForm()
     form.gametitle.choices = [("0", "")] + [(gp[0], gp[1])
@@ -221,8 +192,8 @@ def add_playlist():
                                 PlayingTime=form.playtime.data,
                                 PurchaseDate=form.date.data,
                                 Rating=form.rating.data)
-            update_playlist()
-            update_games_playlist()
+            update_lists(data_playlist_query)
+            update_lists(data_games_to_playlist_query)
             return redirect(url_for('add_playlist'))
         except:
             flash(error_add_to_playlist)
@@ -244,8 +215,8 @@ def remove_playlist(PlaylistId):
         try:
             genre = PlayList.get(PlayList.PlaylistId == PlaylistId)
             genre.delete_instance()
-            update_playlist()
-            update_games_playlist()
+            update_lists(data_playlist_query)
+            update_lists(data_games_to_playlist_query)
         except:
             flash(error_delete_from_playlist)
     return redirect(request.referrer)
