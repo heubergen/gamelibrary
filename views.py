@@ -9,37 +9,36 @@ from flask_wtf.csrf import CSRFProtect
 
 csrf = CSRFProtect(app)
 
-#TODO Expand playlist table
+#TODO Fix responsive table of playlist
+#TODO Custom error messages for everything
+#TODO Try to use function for create and remove db entries
+#TODO Add visualization
+#TODO Try to add settings
 
-def create_tables():
-    with db.connection_context():
-        db.create_tables([Genre, Game, WishList, PlayList])
-
-
-create_tables()
 
 data_gameslist_query = (
     "SELECT GameId, GameTitle, ReleaseDate, GenreName FROM game INNER JOIN Genre ON game.GenreId_id = Genre.GenreId;"
 )
 data_genrelist_query = ("SELECT * FROM Genre")
+
 data_wishlist_query = (
-    "SELECT GameId, GameTitle FROM wishlist INNER JOIN game ON wishlist.GameId_id = game.GameId;"
+    "SELECT GameId, GameTitle, GenreName FROM wishlist INNER JOIN game ON wishlist.GameId_id = game.GameId INNER JOIN genre on game.GenreId_id = genre.GenreId;"
 )
 data_games_to_wishlist_query = (
     "SELECT GameId, GameTitle FROM game WHERE GameId NOT IN (SELECT GameId_id FROM wishlist);"
 )
 data_playlist_query = (
-    "SELECT PlaylistId,PlayingTime,PurchaseDate,Rating,GameId_id FROM playlist INNER JOIN game ON playlist.GameId_id = game.GameId;"
+    "SELECT PlaylistId,GameTitle,PlayingTime,PurchaseDate,PurchasePrice,Rating, ROUND((PurchasePrice/PlayingTime), 2), ROUND(((PurchasePrice/PlayingTime)/(Rating*2)/10), 2) FROM playlist INNER JOIN game ON playlist.GameId_id = game.GameId;"
 )
 data_games_to_playlist_query = (
     "SELECT GameId, GameTitle FROM game WHERE GameId NOT IN (SELECT GameId_id FROM playlist);"
 )
 
-
 def update_lists(tmp_sql_query):
-    cursor = db.execute_sql(tmp_sql_query)
-    data_gameslist = cursor.fetchall()
-    return data_gameslist
+    with db.connection_context():
+        cursor = db.execute_sql(tmp_sql_query)
+        data_gameslist = cursor.fetchall()
+        return data_gameslist
 
 
 root_game = "/game"
@@ -66,12 +65,17 @@ def add_game():
     form2 = RemoveGameButton()
     if form.validate_on_submit():
         try:
-            with db.atomic():
-                Game.create(GameTitle=form.gametitle.data,
-                            ReleaseDate=form.date.data,
-                            GenreId_id=form.genrechoice.data)
-            update_lists(data_gameslist_query)
-        except: flash(error_add_game)
+            with db.connection_context():
+                with db.atomic():
+                    Game.create(GameTitle=form.gametitle.data,
+                                ReleaseDate=form.date.data,
+                                GenreId_id=form.genrechoice.data)
+                update_lists(data_gameslist_query)
+        except:
+            if app.debug:
+                raise
+            else:
+                flash(error_add_game)
         return redirect(url_for('add_game'))
     return render_template('games.html',
                            form=form,
@@ -89,11 +93,15 @@ def delete_game(GameId):
     form2 = RemoveGameButton()
     if form2.validate_on_submit():
         try:
-            game = Game.get(Game.GameId == GameId)
-            game.delete_instance()
-            update_lists(data_gameslist_query)
+            with db.connection_context():
+                game = Game.get(Game.GameId == GameId)
+                game.delete_instance()
+                update_lists(data_gameslist_query)
         except:
-            flash(error_delete_game)
+            if app.debug:
+                raise
+            else:
+                flash(error_delete_game)
     return redirect(request.referrer)
 
 
@@ -105,12 +113,16 @@ def add_genre():
     form2 = RemoveGenreButton()
     if form.validate_on_submit():
         try:
-            with db.atomic():
-                Genre.create(GenreName=request.form['genretitle'])
-            update_lists(data_genrelist_query)
-            return redirect(url_for('add_genre'))
+            with db.connection_context():
+                with db.atomic():
+                    Genre.create(GenreName=request.form['genretitle'])
+                update_lists(data_genrelist_query)
+                return redirect(url_for('add_genre'))
         except:
-            flash(error_add_genre)
+            if app.debug:
+                raise
+            else:
+                flash(error_add_genre)
     return render_template('genre.html',
                            form=form,
                            form2=form2,
@@ -127,11 +139,15 @@ def delete_genre(GenreId):
     form2 = RemoveGenreButton()
     if form2.validate_on_submit():
         try:
-            genre = Genre.get(Genre.GenreId == GenreId)
-            genre.delete_instance()
-            update_lists(data_genrelist_query)
+            with db.connection_context():
+                genre = Genre.get(Genre.GenreId == GenreId)
+                genre.delete_instance()
+                update_lists(data_genrelist_query)
         except:
-            flash(error_delete_genre)
+            if app.debug:
+                raise
+            else:
+                flash(error_delete_genre)
     return redirect(request.referrer)
 
 
@@ -146,12 +162,16 @@ def add_wishlist():
     form2 = RemoveWishListButton()
     if form.validate_on_submit():
         try:
-            with db.atomic():
-                WishList.create(GameId=request.form['gametitle'])
-            update_lists(data_wishlist_query)
-            return redirect(url_for('add_wishlist'))
+            with db.connection_context():
+                with db.atomic():
+                    WishList.create(GameId=request.form['gametitle'])
+                update_lists(data_wishlist_query)
+                return redirect(url_for('add_wishlist'))
         except:
-            flash(error_add_to_wishlist)
+            if app.debug:
+                raise
+            else:
+                flash(error_add_to_wishlist)
     return render_template(
         'wishlist.html',
         form=form,
@@ -168,11 +188,15 @@ def remove_wishlist(GameId):
     form2 = RemoveWishListButton()
     if form2.validate_on_submit():
         try:
-            genre = WishList.get(WishList.GameId == GameId)
-            genre.delete_instance()
-            update_lists(data_games_to_wishlist_query)
+            with db.connection_context():
+                genre = WishList.get(WishList.GameId == GameId)
+                genre.delete_instance()
+                update_lists(data_games_to_wishlist_query)
         except:
-            flash(error_delete_genre)
+            if app.debug:
+                raise
+            else:
+                flash(error_delete_genre)
     return redirect(request.referrer)
 
 
@@ -187,16 +211,21 @@ def add_playlist():
     form2 = RemovePlayListButton()
     if form.validate_on_submit():
         try:
-            with db.atomic():
-                PlayList.create(GameId=form.gametitle.data,
-                                PlayingTime=form.playtime.data,
-                                PurchaseDate=form.date.data,
-                                Rating=form.rating.data)
+            with db.connection_context():
+                with db.atomic():
+                    PlayList.create(GameId=form.gametitle.data,
+                                    PlayingTime=form.playtime.data,
+                                    PurchaseDate=form.date.data,
+                                    PurchasePrice=form.price.data,
+                                    Rating=form.rating.data)
             update_lists(data_playlist_query)
             update_lists(data_games_to_playlist_query)
             return redirect(url_for('add_playlist'))
         except:
-            flash(error_add_to_playlist)
+            if app.debug:
+                raise
+            else:
+                flash(error_add_to_playlist)
     return render_template(
         'playlist.html',
         form=form,
@@ -213,12 +242,16 @@ def remove_playlist(PlaylistId):
     form2 = RemovePlayListButton()
     if form2.validate_on_submit():
         try:
-            genre = PlayList.get(PlayList.PlaylistId == PlaylistId)
-            genre.delete_instance()
-            update_lists(data_playlist_query)
-            update_lists(data_games_to_playlist_query)
+            with db.connection_context():
+                genre = PlayList.get(PlayList.PlaylistId == PlaylistId)
+                genre.delete_instance()
+                update_lists(data_playlist_query)
+                update_lists(data_games_to_playlist_query)
         except:
-            flash(error_delete_from_playlist)
+            if app.debug:
+                raise
+            else:
+                flash(error_delete_from_playlist)
     return redirect(request.referrer)
 
 
@@ -227,10 +260,16 @@ def process_import():
     pagetitle = "Import"
     form = ImportDataForm()
     if form.validate_on_submit():
-        upload_file = form.csv_file.data
-        import_csv_type = form.type.data
-        import_csv(import_csv_type, upload_file)
-        return redirect(url_for('process_import'))
+        try:
+            upload_file = form.csv_file.data
+            import_csv_type = form.type.data
+            import_csv(import_csv_type, upload_file)
+            return redirect(url_for('process_import'))
+        except:
+            if app.debug:
+                raise
+            else:
+                flash(error_csv_import)
     return render_template(
         'import.html',
         pagetitle=pagetitle,

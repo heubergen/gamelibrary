@@ -1,4 +1,4 @@
-from peewee import AutoField, CharField, IntegerField, ForeignKeyField, Model, DateField
+from peewee import AutoField, CharField, IntegerField, ForeignKeyField, Model, DateField, DecimalField
 from app import db
 
 class Genre(Model):
@@ -45,10 +45,18 @@ class WishList(Model):
 
 class PlayList(Model):
     PlaylistId = AutoField()
-    PlayingTime = IntegerField()
+    PlayingTime = DecimalField(max_digits=3, decimal_places=2, auto_round=True, rounding='ROUND_DOWN')
     PurchaseDate = DateField()
+    PurchasePrice = DecimalField(max_digits=3, decimal_places=2, auto_round=True, rounding='ROUND_DOWN')
     Rating = IntegerField()
     GameId = ForeignKeyField(Game, on_delete='CASCADE', unique=True)
 
     class Meta:
         database = db
+
+# Create tables
+def create_tables():
+    with db.connection_context():
+        db.create_tables([Genre, Game, WishList, PlayList])
+
+create_tables()

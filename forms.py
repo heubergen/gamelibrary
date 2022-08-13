@@ -35,6 +35,7 @@ class AddGameToPlayListForm(FlaskForm):
     gametitle = SelectField('Game', [validators.DataRequired()], coerce=int)
     playtime = DecimalField('Playing Time')
     date = DateField('Purchase Date')
+    price = DecimalField('Purchase Price')
     rating = DecimalField('Rating (1-10)')
     submit = SubmitField('Add Game to Playlist')
 

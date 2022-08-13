@@ -6,4 +6,4 @@ app = Flask(__name__)
 app.config.from_object('config')
 
 db = SqliteDatabase('games.db',
-                    pragmas={('foreign_keys', 1), ('ignore_check_constraints', 0)})
+                    pragmas={('foreign_keys', 1), ('ignore_check_constraints', 0)}, autoconnect=False)
