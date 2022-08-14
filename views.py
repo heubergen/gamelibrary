@@ -9,11 +9,11 @@ from flask_wtf.csrf import CSRFProtect
 
 csrf = CSRFProtect(app)
 
-#TODO Fix responsive table of playlist
 #TODO Custom error messages for everything
 #TODO Try to use function for create and remove db entries
 #TODO Add visualization
-#TODO Try to add settings
+#TODO Try to add settings page
+#TODO Try out SASS
 
 
 data_gameslist_query = (

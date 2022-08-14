@@ -23,7 +23,7 @@ class RemoveGenreButton(FlaskForm):
 
 
 class RemoveWishListButton(FlaskForm):
-    submit = SubmitField('Remove', id="remove_button")
+    submit = SubmitField('Remove', id="delete_button")
 
 
 class AddGameToWishlistForm(FlaskForm):

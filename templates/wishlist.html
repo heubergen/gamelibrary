@@ -29,32 +29,37 @@
         </div>
         <div class="end">
             <h1>{% block title %} All games in the wishlist {% endblock %}</h1>
-            <table>
-                <tr>
-                    <th>Game</th>
-                    <th>Genre</th>
-                    <th>Delete Game</th>
-                </tr>
-                {% for w in wishlist %}
-                <tr>
-                    <td>{{ w[1] }}</td>
-                    <td>{{ w[2] }}</td>
-                    <td>
-                        <form action="{{ url_for('remove_wishlist', GameId=w.0) }}" method=post>
-                            {{ form2.csrf_token }}
-                            {{ render_field(form2.submit) }}
-                        </form>
-                        {% with messages = get_flashed_messages() %}
-                        {% if error_delete_from_wishlist in messages %}
-                        <div class=flashes>
-                            {% for message in messages %}
-                            {{ message }}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        {% endwith %}
-                    </td>
+            {% with messages = get_flashed_messages() %}
+            {% if error_delete_from_wishlist in messages %}
+            <div class=flashes>
+                {% for message in messages %}
+                {{ message }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+            <table id="wishlisttable" class="short">
+                <thead>
+                    <tr>
+                        <th>Game</th>
+                        <th>Genre</th>
+                        <th>Delete Game</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for w in wishlist %}
+                    <tr>
+                        <td>{{ w[1] }}</td>
+                        <td>{{ w[2] }}</td>
+                        <td>
+                            <form action="{{ url_for('remove_wishlist', GameId=w.0) }}" method=post>
+                                {{ form2.csrf_token }}
+                                {{ render_field(form2.submit) }}
+                            </form>
+                        </td>
+                    </tr>
                     {% endfor %}
+                </tbody>
             </table>
         </div>
     </div>

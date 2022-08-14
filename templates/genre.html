@@ -38,21 +38,26 @@
             </div>
             {% endif %}
             {% endwith %}
-            <table>
-                <tr>
-                    <th>Title</th>
-                    <th>Delete Game</th>
-                </tr>
+            <table id="genretable" class="short">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Delete Genre</th>
+                    </tr>
+                </thead>
+                <tbody>
                 {% for g in genrelist %}
-                <tr>
-                    <td>{{ g[1] }}</td>
-                    <td>
-                        <form action="{{ url_for('delete_genre', GenreId=g.0) }}" method=post>
-                            {{ form2.csrf_token }}
-                            {{ render_field(form2.submit) }}
-                        </form>
-                    </td>
-                    {% endfor %}
+                    <tr>
+                        <td>{{ g[1] }}</td>
+                        <td>
+                            <form action="{{ url_for('delete_genre', GenreId=g.0) }}" method=post>
+                                {{ form2.csrf_token }}
+                                {{ render_field(form2.submit) }}
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
             </table>
         </div>
     </div>

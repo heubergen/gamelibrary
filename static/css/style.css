@@ -7,14 +7,16 @@ h1 {
     color: #426571;
 }
 
-div.start, div.end {
+div.start,
+div.end {
     display: table-cell;
 }
+
 div.all {
     display: table;
-    table-layout: fixed; /*euqal column width*/
+    table-layout: fixed;
     width: 100%;
-  }
+}
 
 nav {
     overflow: hidden;
@@ -108,7 +110,7 @@ input.form_button {
 form#submit-form {
     display: grid;
     gap: 0.5em;
-    grid-template-columns: 4fr 10em 4fr;
+    grid-template-columns: 4fr 11em 4fr;
     width: 80%;
 }
 
@@ -117,14 +119,15 @@ label:last-of-type {
 }
 
 input#submit {
-    margin: 1em;
+    margin-top: 1em;
 }
 
 form.long-button input.form_button {
     width: 100%;
 }
 
-div.flashes, div.errors {
+div.flashes,
+div.errors {
     color: #ba3939;
     background: #ffe0e0;
     border: 1px solid #a33a3a;
@@ -138,15 +141,15 @@ div.errors p {
 }
 
 @media screen and (max-width: 600px) {
-    table {
+    table.short {
         border: 0;
     }
 
-    table caption {
+    table.short caption {
         font-size: 1.3em;
     }
 
-    table thead {
+    table.short thead {
         border: none;
         clip: rect(0 0 0 0);
         height: 1px;
@@ -157,29 +160,29 @@ div.errors p {
         width: 1px;
     }
 
-    table tr {
+    table.short tr {
         display: block;
         margin-bottom: .625em;
     }
 
-    table td {
+    table.short td {
         display: block;
         font-size: .8em;
         text-align: right;
     }
 
-    table td::before {
+    table.short td::before {
         float: left;
         font-weight: bold;
         text-transform: uppercase;
         color: #dddd55;
     }
 
-    table td:last-child {
+    table.short td:last-child {
         border-bottom: 0;
     }
 
-    tbody tr {
+    table.short tbody tr {
         border-radius: 5px;
     }
 
@@ -187,19 +190,43 @@ div.errors p {
         width: 35%;
     }
 
-    td:nth-of-type(1):before {
+    input#delete_button :not(table.long) {
+        width: 35%;
+    }
+
+    table#gametable td:nth-of-type(1):before {
         content: "Titel";
     }
 
-    td:nth-of-type(2):before {
+    table#gametable td:nth-of-type(2):before {
         content: "Release Date";
     }
 
-    td:nth-of-type(3):before {
+    table#gametable td:nth-of-type(3):before {
         content: "Genre";
     }
 
-    td:nth-of-type(4):before {
+    table#gametable td:nth-of-type(4):before {
+        content: "Delete Game";
+    }
+
+    table#genretable td:nth-of-type(1):before {
+        content: "Titel";
+    }
+
+    table#genretable td:nth-of-type(2):before {
+        content: "Delete Genre";
+    }
+
+    table#wishlisttable td:nth-of-type(1):before {
+        content: "Game";
+    }
+
+    table#wishlisttable td:nth-of-type(2):before {
+        content: "Genre";
+    }
+
+    table#wishlisttable td:nth-of-type(3):before {
         content: "Delete Game";
     }
 }
@@ -213,11 +240,90 @@ div.errors p {
 }
 
 @media screen and (max-width: 1000px) {
-table {
-    margin-left: auto;
-    margin-right: auto;
-}
-div.start, div.end {
-    display: block;
-  }
+    table {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    div.start,
+    div.end {
+        display: block;
+    }
+
+    table.long {
+        border: 0;
+    }
+
+    table.long caption {
+        font-size: 1.3em;
+    }
+
+    table.long thead {
+        border: none;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+    }
+
+    table.long tr {
+        display: block;
+        margin-bottom: .625em;
+    }
+
+    table.long td {
+        display: block;
+        font-size: .8em;
+        text-align: right;
+    }
+
+    table.long td::before {
+        float: left;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #dddd55;
+    }
+
+    table.long td:last-child {
+        border-bottom: 0;
+    }
+
+    table.long tbody tr {
+        border-radius: 5px;
+    }
+
+    table#playlisttable td:nth-of-type(1):before {
+        content: "Game";
+    }
+
+    table#playlisttable td:nth-of-type(2):before {
+        content: "Playtime";
+    }
+
+    table#playlisttable td:nth-of-type(3):before {
+        content: "Purchase Date";
+    }
+
+    table#playlisttable td:nth-of-type(4):before {
+        content: "Purchase Price";
+    }
+
+    table#playlisttable td:nth-of-type(5):before {
+        content: "Rating";
+    }
+
+    table#playlisttable td:nth-of-type(6):before {
+        content: "Costs Per Hour";
+    }
+
+    table#playlisttable td:nth-of-type(7):before {
+        content: "X Rating";
+    }
+
+    table#playlisttable td:nth-of-type(8):before {
+        content: "Delete Game";
+    }
 }
